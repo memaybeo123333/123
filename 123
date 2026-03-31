@@ -1,57 +1,61 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Vim = game:GetService("VirtualInputManager")
+local Lighting = game:GetService("Lighting")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
 
 local Window = Fluent:CreateWindow({
-    Title = "Auto Key Menu",
-    SubTitle = "by Gemini",
+    Title = "Gemini Hub",
+    SubTitle = "Auto Key & Misc",
     TabWidth = 160,
-    Size = UDim2.fromOffset(450, 320),
+    Size = UDim2.fromOffset(450, 350),
     Acrylic = true,
     Theme = "Dark"
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Cài Đặt Phím", Icon = "keyboard" })
+    Main = Window:AddTab({ Title = "Auto Key", Icon = "keyboard" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "settings" })
 }
 
 local Options = {}
+
+-- === PHẦN 1: AUTO KEY ===
 local Keys = {"Z", "X", "C", "V", "F"}
 
--- Hàm xử lý vòng lặp nhấn phím độc lập cho từng phím
 local function CreateAutoKey(key)
     task.spawn(function()
         while true do
-            -- Kiểm tra xem Toggle của phím này có đang bật không
             if Options["Auto" .. key] and Options["Auto" .. key].Value then
                 Vim:SendKeyEvent(true, Enum.KeyCode[key], false, game)
-                task.wait(0.05) -- Thời gian giữ phím (giây)
+                task.wait(0.05)
                 Vim:SendKeyEvent(false, Enum.KeyCode[key], false, game)
             end
-            task.wait(0.1) -- Khoảng cách giữa các lần bấm (0.1 giây = 10 lần/giây)
+            task.wait(0.1)
         end
     end)
 end
 
--- Tạo giao diện và kích hoạt vòng lặp
-Tabs.Main:AddParagraph({
-    Title = "Hướng dẫn",
-    Content = "Bật công tắc để tự động spam phím tương ứng. Mỗi phím hoạt động riêng biệt."
-})
-
 for _, key in ipairs(Keys) do
-    Options["Auto" .. key] = Tabs.Main:AddToggle("Auto" .. key, {
-        Title = "Tự động bấm phím " .. key, 
-        Default = false 
-    })
-    
-    -- Khởi chạy vòng lặp cho phím này
+    Options["Auto" .. key] = Tabs.Main:AddToggle("Auto" .. key, {Title = "Tự động bấm phím " .. key, Default = false })
     CreateAutoKey(key)
 end
 
--- Thông báo khi chạy script thành công
-Window:SelectTab(1)
-Fluent:Notify({
-    Title = "Hệ Thống",
-    Content = "Menu Auto Key đã sẵn sàng!",
-    Duration = 5
+-- === PHẦN 2: MISC (BOOST FPS) ===
+
+Tabs.Misc:AddParagraph({
+    Title = "Tối ưu hóa",
+    Content = "Các công cụ giúp giảm lag và tăng hiệu suất game."
 })
+
+Tabs.Misc:AddButton({
+    Title = "Boost FPS (Xóa Texture/Effect)",
+    Description = "Làm mượt game ngay lập tức (Không thể hoàn tác trừ khi reset game)",
+    Callback = function()
+        Window:Dialog({
+            Title = "Xác nhận",
+            Content = "Bạn có chắc chắn muốn xóa toàn bộ Texture và Effect không? Game sẽ trông khá 'trống trải' đấy!",
+            Buttons = {
+                {
+                    Title = "Đồng ý",
+                    Callback = function()
+                        -- Tắt
