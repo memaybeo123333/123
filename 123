@@ -4,8 +4,8 @@ local Lighting = game:GetService("Lighting")
 local Terrain = workspace:FindFirstChildOfClass("Terrain")
 
 local Window = Fluent:CreateWindow({
-    Title = "Gemini Hub",
-    SubTitle = "Auto Key & Misc",
+    Title = "EchOpp_",
+    SubTitle = "Auto Skill & Misc",
     TabWidth = 160,
     Size = UDim2.fromOffset(450, 350),
     Acrylic = true,
@@ -19,7 +19,7 @@ local Tabs = {
 
 local Options = {}
 
--- === PHẦN 1: AUTO KEY ===
+# AUTO SKILL
 local Keys = {"Z", "X", "C", "V", "F"}
 
 local function CreateAutoKey(key)
@@ -40,20 +40,20 @@ for _, key in ipairs(Keys) do
     CreateAutoKey(key)
 end
 
--- === PHẦN 2: MISC (BOOST FPS) ===
+# MISC
 
 Tabs.Misc:AddParagraph({
-    Title = "Tối ưu hóa",
-    Content = "Các công cụ giúp giảm lag và tăng hiệu suất game."
+    Title = "idk",
+    Content = "bla bla"
 })
 
 Tabs.Misc:AddButton({
     Title = "Boost FPS (Xóa Texture/Effect)",
-    Description = "Làm mượt game ngay lập tức (Không thể hoàn tác trừ khi reset game)",
+    Description = "Xóa các Texture, Effect của Game (Không thể hoàn tác trừ khi reset game)",
     Callback = function()
         Window:Dialog({
             Title = "Xác nhận",
-            Content = "Bạn có chắc chắn muốn xóa toàn bộ Texture và Effect không? Game sẽ trông khá 'trống trải' đấy!",
+            Content = "Bạn có chắc chắn muốn xóa toàn bộ Texture và Effect không? ",
             Buttons = {
                 {
                     Title = "Đồng ý",
