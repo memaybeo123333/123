@@ -1,21 +1,26 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Vim = game:GetService("VirtualInputManager")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local Window = Fluent:CreateWindow({
-    Title = "Auto Key Menu",
+    Title = "Auto Key & Farm Menu",
     SubTitle = "by Gemini",
     TabWidth = 160,
-    Size = UDim2.fromOffset(450, 320),
+    Size = UDim2.fromOffset(450, 400), -- Tăng kích thước cửa sổ
     Acrylic = true,
     Theme = "Dark"
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "keyboard" })
+    Main = Window:AddTab({ Title = "Main", Icon = "keyboard" }),
+    Farm = Window:AddTab({ Title = "FARM", Icon = "target" }) -- Thêm Tab FARM mới
 }
 
 local Options = {}
 local Keys = {"Z", "X", "C", "V", "F"}
+
+-- === PHẦN 1: AUTO KEY (CŨ) ===
 
 -- Hàm xử lý vòng lặp nhấn phím
 local function CreateAutoKey(key)
@@ -31,7 +36,7 @@ local function CreateAutoKey(key)
     end)
 end
 
--- Tạo các nút gạt (Toggle) cho từng phím
+-- Tạo các nút gạt (Toggle) cho từng phím ở Tab Main
 Tabs.Main:AddParagraph({
     Title = "Cài đặt phím",
     Content = "Bật các phím bạn muốn tự động nhấn liên tục."
@@ -39,17 +44,33 @@ Tabs.Main:AddParagraph({
 
 for _, key in ipairs(Keys) do
     Options["Auto" .. key] = Tabs.Main:AddToggle("Auto" .. key, {Title = "Tự động bấm phím " .. key, Default = false })
-    
-    Options["Auto" .. key]:OnChanged(function()
-        print("Trạng thái phím " .. key .. ":", Options["Auto" .. key].Value)
-    end)
-    
     CreateAutoKey(key)
 end
 
-Window:SelectTab(1)
-Fluent:Notify({
-    Title = "Thành công",
-    Content = "Menu đã được tải xong!",
-    Duration = 5
+
+-- === PHẦN 2: FARM (MỚI) ===
+
+Tabs.Farm:AddParagraph({
+    Title = "Cài đặt Farm",
+    Content = "Các tính năng tự động hỗ trợ farm."
 })
+
+-- Thêm Toggle cho Kill Aura
+Options.KillAura = Tabs.Farm:AddToggle("KillAura", {Title = "Kill Aura (Tự Động Tấn Công)", Default = false })
+
+-- Biến để lưu trữ mục tiêu hiện tại
+local currentTarget = nil
+local auraRange = 20 -- Khoảng cách tấn công
+
+-- Logic Kill Aura
+RunService.Heartbeat:Connect(function()
+    if Options.KillAura and Options.KillAura.Value then
+        local localPlayer = Players.LocalPlayer
+        local character = localPlayer.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+        
+        local myRoot = character.HumanoidRootPart
+        local closestEnemy = nil
+        local shortestDistance = auraRange
+
+        -- Tìm kẻ địch gần nhất (NPCs hoặc Players khác - tùy thuộc vào game)
