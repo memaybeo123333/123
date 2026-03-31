@@ -1,76 +1,57 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Vim = game:GetService("VirtualInputManager")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 
 local Window = Fluent:CreateWindow({
-    Title = "Auto Key & Farm Menu",
+    Title = "Auto Key Menu",
     SubTitle = "by Gemini",
     TabWidth = 160,
-    Size = UDim2.fromOffset(450, 400), -- Tăng kích thước cửa sổ
+    Size = UDim2.fromOffset(450, 320),
     Acrylic = true,
     Theme = "Dark"
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "keyboard" }),
-    Farm = Window:AddTab({ Title = "FARM", Icon = "target" }) -- Thêm Tab FARM mới
+    Main = Window:AddTab({ Title = "Cài Đặt Phím", Icon = "keyboard" })
 }
 
 local Options = {}
 local Keys = {"Z", "X", "C", "V", "F"}
 
--- === PHẦN 1: AUTO KEY (CŨ) ===
-
--- Hàm xử lý vòng lặp nhấn phím
+-- Hàm xử lý vòng lặp nhấn phím độc lập cho từng phím
 local function CreateAutoKey(key)
     task.spawn(function()
         while true do
+            -- Kiểm tra xem Toggle của phím này có đang bật không
             if Options["Auto" .. key] and Options["Auto" .. key].Value then
                 Vim:SendKeyEvent(true, Enum.KeyCode[key], false, game)
-                task.wait(0.05) -- Thời gian nhấn giữ
+                task.wait(0.05) -- Thời gian giữ phím (giây)
                 Vim:SendKeyEvent(false, Enum.KeyCode[key], false, game)
             end
-            task.wait(0.1) -- Khoảng cách giữa mỗi lần bấm
+            task.wait(0.1) -- Khoảng cách giữa các lần bấm (0.1 giây = 10 lần/giây)
         end
     end)
 end
 
--- Tạo các nút gạt (Toggle) cho từng phím ở Tab Main
+-- Tạo giao diện và kích hoạt vòng lặp
 Tabs.Main:AddParagraph({
-    Title = "Cài đặt phím",
-    Content = "Bật các phím bạn muốn tự động nhấn liên tục."
+    Title = "Hướng dẫn",
+    Content = "Bật công tắc để tự động spam phím tương ứng. Mỗi phím hoạt động riêng biệt."
 })
 
 for _, key in ipairs(Keys) do
-    Options["Auto" .. key] = Tabs.Main:AddToggle("Auto" .. key, {Title = "Tự động bấm phím " .. key, Default = false })
+    Options["Auto" .. key] = Tabs.Main:AddToggle("Auto" .. key, {
+        Title = "Tự động bấm phím " .. key, 
+        Default = false 
+    })
+    
+    -- Khởi chạy vòng lặp cho phím này
     CreateAutoKey(key)
 end
 
-
--- === PHẦN 2: FARM (MỚI) ===
-
-Tabs.Farm:AddParagraph({
-    Title = "Cài đặt Farm",
-    Content = "Các tính năng tự động hỗ trợ farm."
+-- Thông báo khi chạy script thành công
+Window:SelectTab(1)
+Fluent:Notify({
+    Title = "Hệ Thống",
+    Content = "Menu Auto Key đã sẵn sàng!",
+    Duration = 5
 })
-
--- Thêm Toggle cho Kill Aura
-Options.KillAura = Tabs.Farm:AddToggle("KillAura", {Title = "Kill Aura (Tự Động Tấn Công)", Default = false })
-
--- Biến để lưu trữ mục tiêu hiện tại
-local currentTarget = nil
-local auraRange = 20 -- Khoảng cách tấn công
-
--- Logic Kill Aura
-RunService.Heartbeat:Connect(function()
-    if Options.KillAura and Options.KillAura.Value then
-        local localPlayer = Players.LocalPlayer
-        local character = localPlayer.Character
-        if not character or not character:FindFirstChild("HumanoidRootPart") then return end
-        
-        local myRoot = character.HumanoidRootPart
-        local closestEnemy = nil
-        local shortestDistance = auraRange
-
-        -- Tìm kẻ địch gần nhất (NPCs hoặc Players khác - tùy thuộc vào game)
